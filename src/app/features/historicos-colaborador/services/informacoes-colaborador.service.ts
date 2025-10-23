@@ -12,6 +12,7 @@ import { RetornoGravacao } from './models/retorno-gravacao';
 import { Persistencia } from './models/persistencia';
 import { CorpoBusca } from './models/corpo-busca';
 import { TokenService } from '../../../core/services/token.service';
+import { RetornoHoraAdicional } from './models/hora-adicional';
 
 @Injectable({
   providedIn: 'root',
@@ -58,16 +59,13 @@ export class InformacoesColaboradorService {
       );
   }
 
-  public obterListaColaboradores(
-    body: CorpoBusca
-  ): Observable<RetornoColaborador> {
+  public obterHorasAdicionais(): Observable<RetornoHoraAdicional> {
     return this.http
-      .post<RetornoColaborador>(environment.plugin.invoke, {
+      .post<RetornoHoraAdicional>(environment.plugin.invoke, {
         ...this.basePayload,
         inputData: {
           ...this.basePayload.inputData,
           port: 'buscaColaboradores',
-          ...body,
         },
       })
       .pipe(

@@ -16,15 +16,16 @@ import { RippleModule } from 'primeng/ripple';
 import { MessageService } from 'primeng/api';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Persistencia } from './services/models/persistencia';
-import { BuscaColaboradoresComponent } from './components/busca-colaboradores/busca-colaboradores.component';
 import { format } from 'date-fns';
+import { TabelaPendenciasComponent } from './components/tabela-pendencias/tabela-pendencias.component';
+import { HoraAdicional } from './services/models/hora-adicional';
 
 @Component({
   selector: 'app-historicos-colaborador',
   standalone: true,
   imports: [
     FormsModule,
-    BuscaColaboradoresComponent,
+    TabelaPendenciasComponent,
     LoadingComponent,
     CalendarModule,
     ToastModule,
@@ -36,13 +37,14 @@ import { format } from 'date-fns';
   styleUrl: './historicos-colaborador.component.css',
 })
 export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
-  @ViewChild(BuscaColaboradoresComponent, { static: true })
-  buscaColaboradoresComponent: BuscaColaboradoresComponent | undefined;
+  @ViewChild(TabelaPendenciasComponent, { static: true })
+  tabelaPendenciasComponent: TabelaPendenciasComponent | undefined;
 
   private informacoesColaboradorService = inject(InformacoesColaboradorService);
 
   carregandoInformacoes = signal(false);
   papelAdm: string;
+  horasAdicionais: HoraAdicional[] = [];
 
   constructor(private messageService: MessageService) {}
 
@@ -52,12 +54,34 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
   }
 
   async ngAfterViewInit(): Promise<void> {
-    await this.buscaPapeisSolicitante();
+    // await this.buscaPapeisSolicitante();
+    // await this.buscaHorasAdicionais();
+    const dataHotel = new Date();
+    dataHotel.setHours(0, 0, 0);
+    this.horasAdicionais = [
+      {
+        NEmpresa: '1',
+        NTipoColaborador: '1',
+        NMatricula: '12345',
+        ANome: 'Colaborador Teste',
+        NCodigoProjeto: 'P001',
+        ANomeProjeto: 'Projeto Teste',
+        NHoras: '10:00',
+        horaParcial: dataHotel,
+      },
+    ];
+    this.preencherTabelaPendencias();
     this.carregandoInformacoes.set(false);
   }
 
+  preencherTabelaPendencias(): void {
+    this.tabelaPendenciasComponent.preencherListaHorasAdicionais(
+      this.horasAdicionais
+    );
+  }
+
   inicializaComponente(): void {
-    this.buscaColaboradoresComponent.limparFormulario();
+    // this.buscaColaboradoresComponent.limparFormulario();
   }
 
   async buscaPapeisSolicitante(): Promise<void> {
@@ -78,6 +102,29 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
       console.error(error);
       this.notificarErro(
         'Erro ao buscar os papeis do solicitante, tente mais tarde ou contate o admnistrador. ' +
+          error
+      );
+      this.papelAdm = 'N';
+      this.carregandoInformacoes.set(false);
+    }
+  }
+
+  async buscaHorasAdicionais(): Promise<void> {
+    try {
+      const projetos = await firstValueFrom(
+        this.informacoesColaboradorService.obterHorasAdicionais()
+      );
+      if (projetos.outputData.message) {
+        this.notificarErro(
+          'Erro ao buscar horas adicionais, ' + projetos.outputData.message
+        );
+      } else {
+        this.horasAdicionais = projetos.outputData.horasAdicionais || [];
+      }
+    } catch (error) {
+      console.error(error);
+      this.notificarErro(
+        'Erro ao buscar horas adicionais, tente mais tarde ou contate o admnistrador. ' +
           error
       );
       this.papelAdm = 'N';
@@ -109,7 +156,7 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
   }
 
   desabilitarFormulario(desabilitar: boolean): void {
-    this.buscaColaboradoresComponent.desabilitarFormulario(desabilitar);
+    // this.tabelaPendenciasComponent.desabilitarFormulario(desabilitar);
   }
 
   async gravarEnvio(): Promise<void> {

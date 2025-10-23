@@ -1,0 +1,129 @@
+.tabela-scroll-container {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.tabela-scroll-container table {
+  white-space: nowrap;
+}
+
+::ng-deep .p-datatable-scrollable-header {
+  white-space: nowrap;
+}
+
+.tabela-scroll-container th,
+.tabela-scroll-container td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-align: center;
+  vertical-align: middle;
+}
+::ng-deep .p-table th {
+  white-space: nowrap;
+  padding: 8px 12px;
+}
+
+::ng-deep .p-table td {
+  white-space: nowrap;
+  padding: 6px 10px;
+  vertical-align: middle;
+}
+
+:host ::ng-deep .p-card {
+  border-radius: 0;
+  font-family: "SuzanoDisplay", sans-serif;
+}
+
+::ng-deep .p-datatable {
+  table-layout: fixed;
+  width: 100%;
+}
+
+::ng-deep .p-datatable th,
+::ng-deep .p-datatable td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+}
+
+.botoes-acoes {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.empty-message {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 500px;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+/* Faz as colunas se ajustarem ao título e conteúdo, sem forçar largura */
+:host ::ng-deep .tabela-ajustada th,
+:host ::ng-deep .tabela-ajustada td {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  padding: 6px 8px;
+  text-align: center;
+}
+
+/* Linha expandida formatada em grid responsivo */
+:host ::ng-deep .detalhes-expandido {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  justify-items: center;
+  align-items: center;
+  gap: 1rem;
+  text-align: center;
+  width: 100%;
+}
+
+/* Container ocupa a tela inteira */
+:host ::ng-deep .spinner-container {
+  position: fixed; /* ocupa a tela toda */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6); /* opcional: fundo semi-transparente */
+  z-index: 9999; /* garante que fique acima de tudo */
+}
+
+/* Tamanho do spinner */
+:host ::ng-deep .spinner-wrapper {
+  width: 120px; /* ajuste do tamanho */
+  height: 120px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+:host ::ng-deep .spinner-wrapper p-progressSpinner,
+:host ::ng-deep .spinner-wrapper .p-progress-spinner,
+:host ::ng-deep .spinner-wrapper .p-progress-spinner svg {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+:host ::ng-deep .spinner-center-img {
+  position: absolute;
+  width: 40px; /* aumentei junto com o spinner */
+  height: 40px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+}

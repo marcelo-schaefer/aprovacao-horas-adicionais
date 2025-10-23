@@ -1,6 +1,0 @@
-/* Aumenta a altura da linha no textarea */
-.custom-textarea {
-  line-height: 1.8rem !important;
-  resize: vertical; /* permite redimensionar se quiser */
-  width: 100%;
-}

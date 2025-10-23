@@ -1,0 +1,105 @@
+<p-card>
+  <p-toast />
+  <ng-template pTemplate="title">
+    <h2>Aprovação de Horas Adicionais</h2>
+  </ng-template>
+
+  <div class="tabela-scroll-container">
+    <p-table
+      [value]="horasAdicionais || []"
+      dataKey="NCodigoProjeto"
+      [paginator]="true"
+      [rows]="10"
+      styleClass="p-datatable-sm tabela-ajustada"
+      scrollHeight="700px"
+      (sortFunction)="customSort($event)"
+      [(selection)]="selectedItems"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 4rem">
+            <p-tableHeaderCheckbox (click)="selecionarTodosRegistros()" />
+          </th>
+
+          <th pSortableColumn="NMatricula">
+            Colaborador <p-sortIcon field="NMatricula" />
+          </th>
+          <th pSortableColumn="NCodigoProjeto">
+            Projeto <p-sortIcon field="NCodigoProjeto" />
+          </th>
+          <th pSortableColumn="NHoras">
+            Quantidade de Horas <p-sortIcon field="NHoras" />
+          </th>
+          <th pSortableColumn="NHoras">
+            Horas Parciais<p-sortIcon field="NHoras" />
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-log let-expanded="expanded">
+        <tr>
+          <td>
+            <p-tableCheckbox
+              [value]="log"
+              (click)="log.selecionado = !log.selecionado"
+            />
+          </td>
+
+          <td>{{ log.NMatricula + " - " + log.ANome }}</td>
+          <td>{{ log.NCodigoProjeto + " - " + log.ANomeProjeto }}</td>
+          <td>{{ log.NHoras }}</td>
+          <td
+            [pEditableColumn]="log.horaParcial"
+            pEditableColumnField="horaParcial"
+          >
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-calendar
+                  inputId="calendar-timeonly"
+                  [(ngModel)]="log.horaParcial"
+                  [timeOnly]="true"
+                  appendTo="body"
+                />
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{
+                  log.horaParcial ? formataHoraParcial(log.horaParcial) : " - "
+                }}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="12">
+            <div class="empty-message">
+              Sem pendências de horas adicionais para aprovação.
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <br />
+  <div class="botoes-acoes">
+    <p-button
+      label="Aprovar Selecionados"
+      [outlined]="true"
+      icon="pi pi-check"
+      severity="success"
+      (onClick)="emitirEnviarPendencias(true)"
+      [disabled]="retornaPendenciasSelecionadas()?.length === 0"
+    />
+    <p-button
+      label="Reprovar Selecionados"
+      [outlined]="true"
+      icon="pi pi-times"
+      severity="danger"
+      (onClick)="emitirEnviarPendencias(false)"
+      [disabled]="retornaPendenciasSelecionadas()?.length === 0"
+    />
+  </div>
+</p-card>
