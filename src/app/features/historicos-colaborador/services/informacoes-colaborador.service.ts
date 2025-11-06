@@ -24,7 +24,7 @@ export class InformacoesColaboradorService {
       encryption: '3',
       server: 'https://ocweb03s1p.seniorcloud.com.br:31061/',
       module: 'rubi',
-      service: 'com.senior.g5.rh.fp.apontamentoRetroativo',
+      service: 'com.senior.g5.rh.fp.aprovacaoHorasAdicionais',
       port: '',
       user: '',
       password: '',
@@ -33,46 +33,21 @@ export class InformacoesColaboradorService {
   };
 
   private http = inject(HttpClient);
-  private tokenService = inject(TokenService);
 
-  public obterPapelSolicitante(): Observable<RetornoPapelColaborador> {
-    const aNomeUsuario = this.tokenService.username;
-    return this.http
-      .post<RetornoPapelColaborador>(environment.plugin.invoke, {
-        ...this.basePayload,
-        inputData: {
-          ...this.basePayload.inputData,
-          port: 'verificaPapelSolicitante',
-          aNomeUsuario,
-        },
-      })
-      .pipe(
-        catchError((error) => {
-          return of({
-            outputData: {
-              APapelAdmAgendaEquipe: 'N',
-              ARetorno: error.message || error.toString(),
-              message: error.message || error.toString(),
-            },
-          });
-        })
-      );
-  }
-
-  public obterHorasAdicionais(): Observable<RetornoHoraAdicional> {
+  public obterHorasSolicitadas(): Observable<RetornoHoraAdicional> {
     return this.http
       .post<RetornoHoraAdicional>(environment.plugin.invoke, {
         ...this.basePayload,
         inputData: {
           ...this.basePayload.inputData,
-          port: 'buscaColaboradores',
+          port: 'buscaHorasSolicitadas',
         },
       })
       .pipe(
         catchError((error) => {
           return of({
             outputData: {
-              ARetorno: error.message || error.toString(),
+              horasSolicitadas: [],
               message: error.message || error.toString(),
             },
           });
@@ -80,21 +55,23 @@ export class InformacoesColaboradorService {
       );
   }
 
-  public gravarEnvio(body: Persistencia): Observable<RetornoGravacao> {
+  public gravarEnvio(
+    horasSolicitadas: Persistencia[]
+  ): Observable<RetornoGravacao> {
     return this.http
       .post<RetornoGravacao>(environment.plugin.invoke, {
         ...this.basePayload,
         inputData: {
           ...this.basePayload.inputData,
-          ...body,
-          port: 'persistirDatas',
+          horasSolicitadas,
+          port: 'persisteAprovacao',
         },
       })
       .pipe(
         catchError((error) => {
           return of({
             outputData: {
-              ARetorno: error.message || error.toString(),
+              retorno: error.message || error.toString(),
               message: error.message || error.toString(),
             },
           });

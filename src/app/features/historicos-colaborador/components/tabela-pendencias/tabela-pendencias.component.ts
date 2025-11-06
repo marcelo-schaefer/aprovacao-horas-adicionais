@@ -9,7 +9,7 @@ import {
   signal,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { SortEvent } from 'primeng/api';
+import { MessageService, SortEvent } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
@@ -50,8 +50,12 @@ export class TabelaPendenciasComponent implements AfterViewInit {
   horasAdicionais: HoraAdicional[] = [];
   selecionarTodos: boolean = false;
   expandirTodos: boolean = false;
+  desabilitar: boolean = false;
 
-  constructor(private cdref: ChangeDetectorRef) {}
+  constructor(
+    private cdref: ChangeDetectorRef,
+    private messageService: MessageService
+  ) {}
 
   async ngAfterViewInit(): Promise<void> {
     this.cdref.detectChanges();
@@ -59,6 +63,41 @@ export class TabelaPendenciasComponent implements AfterViewInit {
 
   preencherListaHorasAdicionais(horas: HoraAdicional[]): void {
     this.horasAdicionais = horas;
+    this.preencheId();
+    this.formataHoras();
+    this.zeraHorasParciais();
+  }
+
+  preencheId(): void {
+    this.horasAdicionais.forEach((hora, index) => {
+      hora.id = index + 1;
+    });
+  }
+
+  formataHoras(): void {
+    this.horasAdicionais.forEach((hora) => {
+      const horaNumber = Number(hora.horas);
+      const horas = Math.floor(horaNumber / 60);
+      const minutos = horaNumber % 60;
+      hora.horasFormatadas =
+        horas.toString().padStart(2, '0') +
+        ':' +
+        minutos.toString().padStart(2, '0');
+    });
+  }
+
+  zeraHorasParciais(): void {
+    this.horasAdicionais.forEach((hora) => {
+      hora.horasParciais = new Date(0, 0, 0, 0, 0, 0);
+    });
+  }
+
+  limparFormulario(): void {
+    this.horasAdicionais = [];
+  }
+
+  desabilitarFormulario(desabilitar: boolean): void {
+    this.desabilitar = desabilitar;
   }
 
   formataHoraParcial(horaParcial: Date): string {
@@ -110,14 +149,18 @@ export class TabelaPendenciasComponent implements AfterViewInit {
   }
 
   emitirEnviarPendencias(aprovar: boolean): void {
-    this.loadingTabela(true);
-    this.emitterEnviarPendencias.emit(aprovar);
+    if (this.retornaPendenciasSelecionadas().length > 0) {
+      this.loadingTabela(true);
+      this.emitterEnviarPendencias.emit(aprovar);
+    } else
+      this.notificarErro(
+        'Selecione ao menos uma pendência para aprovar ou reprovar.'
+      );
   }
 
   emitirGerarRelatorio(): void {
     this.resetarSelecoes();
     this.cdref.detectChanges();
-    // this.emitterGerarRelatorio.emit(true);
   }
 
   customSort(event: SortEvent) {
@@ -180,5 +223,14 @@ export class TabelaPendenciasComponent implements AfterViewInit {
         return 0;
       });
     }
+  }
+
+  notificarErro(mensagem: string) {
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erro',
+      detail: mensagem,
+      life: 10000,
+    });
   }
 }

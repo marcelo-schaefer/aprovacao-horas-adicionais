@@ -1,6 +1,9 @@
 export interface Persistencia {
-  nEmpresa: number;
-  nTipoColaborador: number;
-  nMatricula: number;
-  dData: string;
+  empresa: number;
+  tipoColaborador: number;
+  matricula: number;
+  projeto: number;
+  horas: number;
+  horasParciais: number;
+  aprovar: string;
 }

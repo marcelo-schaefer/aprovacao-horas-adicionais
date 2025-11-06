@@ -1,19 +1,20 @@
 export interface HoraAdicional {
+  id?: number;
   selecionado?: boolean;
-  NEmpresa: string;
-  NTipoColaborador: string;
-  NMatricula: string;
-  ANome: string;
-  NCodigoProjeto: string;
-  ANomeProjeto: string;
-  NHoras: string;
-  horaParcial: Date;
+  empresa: string;
+  tipoColaborador: string;
+  matricula: string;
+  nome: string;
+  projeto: string;
+  nomeProjeto: string;
+  horas: string;
+  horasFormatadas: string;
+  horasParciais: Date;
 }
 
 export interface RetornoHoraAdicional {
   outputData: {
-    horasAdicionais?: HoraAdicional[];
-    ARetorno?: string;
+    horasSolicitadas?: HoraAdicional[];
     message?: string;
   };
 }

@@ -7,7 +7,7 @@
   <div class="tabela-scroll-container">
     <p-table
       [value]="horasAdicionais || []"
-      dataKey="NCodigoProjeto"
+      dataKey="id"
       [paginator]="true"
       [rows]="10"
       styleClass="p-datatable-sm tabela-ajustada"
@@ -18,20 +18,23 @@
       <ng-template pTemplate="header">
         <tr>
           <th style="width: 4rem">
-            <p-tableHeaderCheckbox (click)="selecionarTodosRegistros()" />
+            <p-tableHeaderCheckbox
+              (click)="selecionarTodosRegistros()"
+              [disabled]="desabilitar"
+            />
           </th>
 
-          <th pSortableColumn="NMatricula">
-            Colaborador <p-sortIcon field="NMatricula" />
+          <th pSortableColumn="matricula">
+            Colaborador <p-sortIcon field="matricula" />
           </th>
-          <th pSortableColumn="NCodigoProjeto">
-            Projeto <p-sortIcon field="NCodigoProjeto" />
+          <th pSortableColumn="projeto">
+            Projeto <p-sortIcon field="projeto" />
           </th>
-          <th pSortableColumn="NHoras">
-            Quantidade de Horas <p-sortIcon field="NHoras" />
+          <th pSortableColumn="horas">
+            Quantidade de Horas <p-sortIcon field="horas" />
           </th>
-          <th pSortableColumn="NHoras">
-            Horas Parciais<p-sortIcon field="NHoras" />
+          <th pSortableColumn="horasParciais">
+            Horas Parciais<p-sortIcon field="horasParciais" />
           </th>
         </tr>
       </ng-template>
@@ -42,28 +45,31 @@
             <p-tableCheckbox
               [value]="log"
               (click)="log.selecionado = !log.selecionado"
+              [disabled]="desabilitar"
             />
           </td>
 
-          <td>{{ log.NMatricula + " - " + log.ANome }}</td>
-          <td>{{ log.NCodigoProjeto + " - " + log.ANomeProjeto }}</td>
-          <td>{{ log.NHoras }}</td>
+          <td>{{ log.matricula + " - " + log.nome }}</td>
+          <td>{{ log.projeto + " - " + log.nomeProjeto }}</td>
+          <td>{{ log.horasFormatadas }}</td>
           <td
-            [pEditableColumn]="log.horaParcial"
-            pEditableColumnField="horaParcial"
+            [pEditableColumn]="log.horasParciais"
+            pEditableColumnField="horasParciais"
           >
             <p-cellEditor>
               <ng-template pTemplate="input">
                 <p-calendar
                   inputId="calendar-timeonly"
-                  [(ngModel)]="log.horaParcial"
+                  [(ngModel)]="log.horasParciais"
                   [timeOnly]="true"
                   appendTo="body"
                 />
               </ng-template>
               <ng-template pTemplate="output">
                 {{
-                  log.horaParcial ? formataHoraParcial(log.horaParcial) : " - "
+                  log.horasParciais
+                    ? formataHoraParcial(log.horasParciais)
+                    : " - "
                 }}
               </ng-template>
             </p-cellEditor>
@@ -91,7 +97,7 @@
       icon="pi pi-check"
       severity="success"
       (onClick)="emitirEnviarPendencias(true)"
-      [disabled]="retornaPendenciasSelecionadas()?.length === 0"
+      [disabled]="desabilitar || retornaPendenciasSelecionadas()?.length === 0"
     />
     <p-button
       label="Reprovar Selecionados"
@@ -99,7 +105,7 @@
       icon="pi pi-times"
       severity="danger"
       (onClick)="emitirEnviarPendencias(false)"
-      [disabled]="retornaPendenciasSelecionadas()?.length === 0"
+      [disabled]="desabilitar || retornaPendenciasSelecionadas()?.length === 0"
     />
   </div>
 </p-card>

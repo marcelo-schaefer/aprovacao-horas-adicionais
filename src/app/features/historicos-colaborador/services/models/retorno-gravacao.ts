@@ -1,6 +1,6 @@
 export interface RetornoGravacao {
   outputData: {
-  ARetorno: string;
-  message: string;
-}
+    retorno: string;
+    message: string;
+  };
 }

@@ -50,28 +50,10 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.carregandoInformacoes.set(true);
-    this.inicializaComponente();
   }
 
-  async ngAfterViewInit(): Promise<void> {
-    // await this.buscaPapeisSolicitante();
-    // await this.buscaHorasAdicionais();
-    const dataHotel = new Date();
-    dataHotel.setHours(0, 0, 0);
-    this.horasAdicionais = [
-      {
-        NEmpresa: '1',
-        NTipoColaborador: '1',
-        NMatricula: '12345',
-        ANome: 'Colaborador Teste',
-        NCodigoProjeto: 'P001',
-        ANomeProjeto: 'Projeto Teste',
-        NHoras: '10:00',
-        horaParcial: dataHotel,
-      },
-    ];
-    this.preencherTabelaPendencias();
-    this.carregandoInformacoes.set(false);
+  ngAfterViewInit(): void {
+    this.inicializaComponente();
   }
 
   preencherTabelaPendencias(): void {
@@ -80,51 +62,42 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
     );
   }
 
-  inicializaComponente(): void {
-    // this.buscaColaboradoresComponent.limparFormulario();
+  limparFormulario(): void {
+    this.horasAdicionais = [];
+    this.tabelaPendenciasComponent.limparFormulario();
   }
 
-  async buscaPapeisSolicitante(): Promise<void> {
-    try {
-      const projetos = await firstValueFrom(
-        this.informacoesColaboradorService.obterPapelSolicitante()
-      );
-      if (projetos.outputData.message) {
-        this.notificarErro(
-          'Erro ao identificar o papel solicitante, ' +
-            projetos.outputData.message
-        );
-        this.papelAdm = 'N';
-      } else {
-        this.papelAdm = projetos.outputData.APapelAdmAgendaEquipe || 'N';
-      }
-    } catch (error) {
-      console.error(error);
-      this.notificarErro(
-        'Erro ao buscar os papeis do solicitante, tente mais tarde ou contate o admnistrador. ' +
-          error
-      );
-      this.papelAdm = 'N';
-      this.carregandoInformacoes.set(false);
-    }
+  async inicializaComponente(): Promise<void> {
+    this.limparFormulario();
+    await this.buscaHorasAdicionais();
+    this.preencherTabelaPendencias();
+    this.carregandoInformacoes.set(false);
+    this.desabilitarFormulario(false);
   }
 
   async buscaHorasAdicionais(): Promise<void> {
     try {
       const projetos = await firstValueFrom(
-        this.informacoesColaboradorService.obterHorasAdicionais()
+        this.informacoesColaboradorService.obterHorasSolicitadas()
       );
       if (projetos.outputData.message) {
         this.notificarErro(
-          'Erro ao buscar horas adicionais, ' + projetos.outputData.message
+          'Erro ao buscar horas solicitadas, ' + projetos.outputData.message
         );
       } else {
-        this.horasAdicionais = projetos.outputData.horasAdicionais || [];
+        if (
+          projetos.outputData.horasSolicitadas &&
+          !Array.isArray(projetos.outputData.horasSolicitadas)
+        )
+          projetos.outputData.horasSolicitadas = [
+            projetos.outputData.horasSolicitadas,
+          ];
+        this.horasAdicionais = projetos.outputData.horasSolicitadas || [];
       }
     } catch (error) {
       console.error(error);
       this.notificarErro(
-        'Erro ao buscar horas adicionais, tente mais tarde ou contate o admnistrador. ' +
+        'Erro ao buscar horas solicitadas, tente mais tarde ou contate o admnistrador. ' +
           error
       );
       this.papelAdm = 'N';
@@ -149,38 +122,38 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
     });
   }
 
-  async enviarSolicitacao(): Promise<void> {
+  async enviarSolicitacao(aprovar: boolean): Promise<void> {
     this.desabilitarFormulario(true);
     this.carregandoInformacoes.set(true);
-    await this.gravarEnvio();
+    await this.gravarEnvio(aprovar);
   }
 
   desabilitarFormulario(desabilitar: boolean): void {
-    // this.tabelaPendenciasComponent.desabilitarFormulario(desabilitar);
+    this.tabelaPendenciasComponent.desabilitarFormulario(desabilitar);
   }
 
-  async gravarEnvio(): Promise<void> {
+  async gravarEnvio(aprovar: boolean): Promise<void> {
     await lastValueFrom(
-      this.informacoesColaboradorService.gravarEnvio(this.montaCorpoEnvio())
+      this.informacoesColaboradorService.gravarEnvio(
+        this.montaCorpoEnvio(aprovar)
+      )
     ).then(
       (data) => {
-        if (data.outputData.message || data.outputData.ARetorno != 'OK') {
+        if (data.outputData.message || data.outputData.retorno != 'OK') {
           this.notificarErro(
-            'Erro ao gravar a data retroativa, ' +
-              (data.outputData?.message || data.outputData?.ARetorno)
+            'Erro ao gravar a aprovação/reprovação das horas selecionadas, ' +
+              (data.outputData?.message || data.outputData?.retorno)
           );
           this.carregandoInformacoes.set(false);
           this.desabilitarFormulario(false);
         } else {
           this.notificarSucesso('Gravado com sucesso!');
           this.inicializaComponente();
-          this.carregandoInformacoes.set(false);
-          this.desabilitarFormulario(false);
         }
       },
       () => {
         this.notificarErro(
-          'Erro ao gravar a data retroativa, tente mais tarde ou contate o administrador'
+          'Erro ao gravar a aprovação/reprovação das horas selecionadas, tente mais tarde ou contate o administrador'
         );
         this.carregandoInformacoes.set(false);
         this.desabilitarFormulario(false);
@@ -192,7 +165,19 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
     return format(data, 'dd/MM/yyyy');
   }
 
-  montaCorpoEnvio(): Persistencia {
-    return {} as Persistencia;
+  montaCorpoEnvio(aprovar: boolean): Persistencia[] {
+    return this.tabelaPendenciasComponent
+      .retornaPendenciasSelecionadas()
+      .map((pendencia) => {
+        return {
+          empresa: Number(pendencia.empresa),
+          tipoColaborador: Number(pendencia.tipoColaborador),
+          matricula: Number(pendencia.matricula),
+          projeto: Number(pendencia.projeto),
+          horas: Number(pendencia.horas),
+          horasParciais: pendencia.horasParciais.getHours(),
+          aprovar: aprovar ? 'S' : 'N',
+        };
+      });
   }
 }
