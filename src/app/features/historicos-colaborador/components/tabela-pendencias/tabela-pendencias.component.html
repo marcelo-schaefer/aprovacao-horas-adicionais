@@ -39,7 +39,12 @@
         </tr>
       </ng-template>
 
-      <ng-template pTemplate="body" let-log let-expanded="expanded">
+      <ng-template
+        pTemplate="body"
+        let-log
+        let-expanded="expanded"
+        let-index="rowIndex"
+      >
         <tr>
           <td>
             <p-tableCheckbox
@@ -58,19 +63,24 @@
           >
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <p-calendar
+                <!-- <p-calendar
                   inputId="calendar-timeonly"
                   [(ngModel)]="log.horasParciais"
                   [timeOnly]="true"
                   appendTo="body"
+                /> -->
+
+                <input
+                  type="text"
+                  pInputText
+                  class="form-control"
+                  [ngModel]="log.horasParciaisString"
+                  (ngModelChange)="formatarHorasAdicionais($event, index)"
+                  placeholder="00:00"
                 />
               </ng-template>
               <ng-template pTemplate="output">
-                {{
-                  log.horasParciais
-                    ? formataHoraParcial(log.horasParciais)
-                    : " - "
-                }}
+                {{ log.horasParciaisString ? log.horasParciaisString : " - " }}
               </ng-template>
             </p-cellEditor>
           </td>

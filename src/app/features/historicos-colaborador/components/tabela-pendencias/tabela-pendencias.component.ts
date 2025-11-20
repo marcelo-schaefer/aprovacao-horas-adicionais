@@ -19,6 +19,7 @@ import { ToastModule } from 'primeng/toast';
 import { PendenciaAprovacao } from '../../services/models/pendencia-aprovacao';
 import { HoraAdicional } from '../../services/models/hora-adicional';
 import { CalendarModule } from 'primeng/calendar';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-tabela-pendencias',
@@ -36,6 +37,7 @@ import { CalendarModule } from 'primeng/calendar';
     ButtonModule,
     ToastModule,
     CalendarModule,
+    InputTextModule,
   ],
 })
 export class TabelaPendenciasComponent implements AfterViewInit {
@@ -65,7 +67,6 @@ export class TabelaPendenciasComponent implements AfterViewInit {
     this.horasAdicionais = horas;
     this.preencheId();
     this.formataHoras();
-    this.zeraHorasParciais();
   }
 
   preencheId(): void {
@@ -83,12 +84,6 @@ export class TabelaPendenciasComponent implements AfterViewInit {
         horas.toString().padStart(2, '0') +
         ':' +
         minutos.toString().padStart(2, '0');
-    });
-  }
-
-  zeraHorasParciais(): void {
-    this.horasAdicionais.forEach((hora) => {
-      hora.horasParciais = new Date(0, 0, 0, 0, 0, 0);
     });
   }
 
@@ -223,6 +218,14 @@ export class TabelaPendenciasComponent implements AfterViewInit {
         return 0;
       });
     }
+  }
+
+  formatarHorasAdicionais(v: string, index: number) {
+    v = v.replace(/\D+/g, '');
+    const h = v.slice(0, -2) || '0';
+    let m = v.slice(-2);
+    m = m.length < 2 ? m : Math.min(+m, 59).toString().padStart(2, '0');
+    this.horasAdicionais[index].horasParciaisString = `${h}:${m}`;
   }
 
   notificarErro(mensagem: string) {

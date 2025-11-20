@@ -175,9 +175,14 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
           matricula: Number(pendencia.matricula),
           projeto: Number(pendencia.projeto),
           horas: Number(pendencia.horas),
-          horasParciais: pendencia.horasParciais.getHours(),
+          horasParciais: this.horasParaMinutos(pendencia.horasParciaisString),
           aprovar: aprovar ? 'S' : 'N',
         };
       });
+  }
+
+  horasParaMinutos(h: string): number {
+    const [hh, mm] = h.split(':').map(Number);
+    return hh * 60 + mm;
   }
 }

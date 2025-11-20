@@ -9,7 +9,7 @@ export interface HoraAdicional {
   nomeProjeto: string;
   horas: string;
   horasFormatadas: string;
-  horasParciais: Date;
+  horasParciaisString: string;
 }
 
 export interface RetornoHoraAdicional {
