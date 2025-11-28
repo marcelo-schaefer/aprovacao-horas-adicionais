@@ -19,6 +19,7 @@ import { Persistencia } from './services/models/persistencia';
 import { format } from 'date-fns';
 import { TabelaPendenciasComponent } from './components/tabela-pendencias/tabela-pendencias.component';
 import { HoraAdicional } from './services/models/hora-adicional';
+import { TokenService } from '../../core/services/token.service';
 
 @Component({
   selector: 'app-historicos-colaborador',
@@ -41,6 +42,7 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
   tabelaPendenciasComponent: TabelaPendenciasComponent | undefined;
 
   private informacoesColaboradorService = inject(InformacoesColaboradorService);
+  private tokenService = inject(TokenService);
 
   carregandoInformacoes = signal(false);
   papelAdm: string;
@@ -52,8 +54,19 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
     this.carregandoInformacoes.set(true);
   }
 
-  ngAfterViewInit(): void {
+  async ngAfterViewInit(): Promise<void> {
+    await this.checkInicializacao();
     this.inicializaComponente();
+  }
+
+  async checkInicializacao(): Promise<void> {
+    while (
+      !this.tokenService.token$.value?.accessToken ||
+      !this.tokenService.username
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      this.tokenService.carregarToken();
+    }
   }
 
   preencherTabelaPendencias(): void {
